@@ -1,0 +1,430 @@
+/* Общие медиа-запросы для всех компонентов */
+/* ============================================================ */
+
+/* Медиа-запросы для планшетов (max-width: 992px) */
+@media (max-width: 992px) {
+    h1 { font-size: 2.2rem !important; }
+    h2 { font-size: 1.8rem !important; }
+    h3 { font-size: 1.5rem !important; }
+
+    .container {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+
+    .section {
+        padding: 60px 0 !important;
+    }
+}
+
+/* Медиа-запросы для мобильных устройств (max-width: 768px) */
+@media (max-width: 768px) {
+    body { font-size: 14px; }
+
+    .section {
+        padding: 40px 0 !important;
+    }
+
+    .container {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    .desktop-only { display: none !important; }
+    .mobile-only { display: block !important; }
+}
+
+/* Медиа-запросы для маленьких телефонов (max-width: 576px) */
+@media (max-width: 576px) {
+    h1 {
+        font-size: 1.8rem !important;
+        line-height: 1.2 !important;
+    }
+
+    h2 { font-size: 1.5rem !important; }
+
+    .btn {
+        padding: 10px 15px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .container {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+}
+
+/* ============================================================
+   Специфичные медиа-запросы для компонентов
+   ============================================================ */
+
+/* HeroCardComponent.vue адаптивность */
+@media (max-width: 768px) {
+    .hero-card { min-height: 400px !important; }
+
+    .hero-card-image {
+        height: 150px !important;
+        min-height: 150px !important;
+    }
+
+    .hero-card__content { padding: 20px !important; }
+
+    .hero-card__content h3 {
+        font-size: 1.2rem !important;
+        min-height: 30px !important;
+    }
+
+    .hero-card-achievements {
+        -webkit-line-clamp: 2 !important;
+        min-height: 45px !important;
+    }
+
+    .tag {
+        font-size: 0.7rem !important;
+        padding: 4px 8px !important;
+        max-width: 150px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-card { min-height: 350px !important; }
+    .hero-card-image { height: 120px !important; }
+    .hero-card__content h3 { font-size: 1.1rem !important; }
+    .hero-tags { gap: 5px !important; }
+}
+
+/* ModalHeroComponent.vue адаптивность */
+@media (max-width: 768px) {
+    .modal-hero {
+        max-width: 90% !important;
+        max-height: 95vh !important;
+    }
+
+    .modal-header {
+        flex-direction: column !important;
+        text-align: center !important;
+        padding: 20px !important;
+        gap: 15px !important;
+    }
+
+    .modal-hero-image {
+        width: 120px !important;
+        height: 120px !important;
+    }
+
+    .modal-hero-info h2 { font-size: 1.6rem !important; }
+
+    .modal-hero-era {
+        font-size: 0.8rem !important;
+        padding: 4px 12px !important;
+    }
+
+    .modal-body { padding: 20px !important; }
+    .modal-footer { padding: 15px 20px !important; }
+}
+
+/* ProfileComponent.vue адаптивность */
+@media (max-width: 768px) {
+    .profile-content { padding: 20px !important; }
+
+    .profile-header {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 20px !important;
+        padding-bottom: 20px !important;
+    }
+
+    .profile-avatar i {
+        font-size: 3.5rem !important;
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    .profile-info {
+        min-width: auto !important;
+        width: 100% !important;
+    }
+
+    .profile-meta {
+        justify-content: center !important;
+        gap: 15px !important;
+    }
+
+    .profile-actions {
+        width: 100% !important;
+        justify-content: center !important;
+        gap: 10px !important;
+    }
+
+    .edit-form { padding: 20px !important; }
+
+    .form-actions {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .form-actions .btn {
+        width: 100% !important;
+        min-width: auto !important;
+    }
+}
+
+/* AdminPanelComponent.vue адаптивность */
+@media (max-width: 992px) {
+    .admin-stats {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 15px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-content {
+        padding: 20px !important;
+        padding-top: 60px !important;
+    }
+
+    .admin-tabs {
+        flex-direction: column !important;
+        gap: 5px !important;
+    }
+
+    .tab-btn {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 10px !important;
+    }
+
+    .admin-search {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+    .search-box {
+        max-width: 100% !important;
+        min-width: auto !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-stats { grid-template-columns: 1fr !important; }
+
+    .admin-table {
+        font-size: 0.85rem !important;
+    }
+
+    .admin-table th,
+    .admin-table td { padding: 10px !important; }
+}
+
+/* App.vue адаптивность */
+@media (max-width: 768px) {
+    .hero {
+        padding: 120px 0 40px !important;
+    }
+
+    .hero .container {
+        flex-direction: column !important;
+        text-align: center !important;
+    }
+
+    .hero-title { font-size: 2.5rem !important; }
+
+    .hero-subtitle { font-size: 1.1rem !important; }
+
+    .hero-buttons {
+        justify-content: center !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .hero-stats {
+        justify-content: center !important;
+        gap: 30px !important;
+    }
+
+    .floating-rocket { font-size: 15rem !important; }
+
+    .heroes-grid,
+    .missions-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+        gap: 20px !important;
+    }
+
+    .timeline::before { display: none !important; }
+
+    .section-header {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 10px !important;
+    }
+}
+
+/* TimelineItemComponent.vue адаптивность */
+@media (max-width: 768px) {
+    .timeline-item {
+        flex-direction: column !important;
+        margin-bottom: 30px !important;
+    }
+
+    .timeline-item:nth-child(odd),
+    .timeline-item:nth-child(even) {
+        flex-direction: column !important;
+    }
+
+    .timeline-date {
+        flex: none !important;
+        margin-bottom: 15px !important;
+        order: 1 !important;
+    }
+
+    .timeline-content {
+        flex: none !important;
+        width: 100% !important;
+        margin: 0 !important;
+        order: 2 !important;
+    }
+}
+
+/* MissionCardComponent.vue адаптивность */
+@media (max-width: 768px) {
+    .mission-card { min-height: 300px !important; }
+
+    .mission-card-header { padding: 20px !important; }
+
+    .mission-card-header i { font-size: 2.5rem !important; }
+
+    .mission-card-content { padding: 20px !important; }
+}
+
+/* KBComponent.vue адаптивность */
+@media (max-width: 768px) {
+    .upload-card,
+    .auth-card {
+        padding: 20px;
+    }
+
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .project-meta {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* FooterComponent.vue адаптивность */
+@media (max-width: 768px) {
+    .footer { padding: 40px 0 20px !important; }
+
+    .footer__content {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 30px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .footer__content {
+        grid-template-columns: 1fr !important;
+        text-align: center !important;
+    }
+
+    .social-links { justify-content: center !important; }
+}
+
+/* Адаптивность для всех модальных окон */
+@media (max-width: 576px) {
+    .modal-overlay,
+    .auth-modal-overlay { padding: 10px !important; }
+
+    .modal,
+    .auth-modal {
+        max-width: 100% !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+        padding: 20px 15px !important;
+    }
+
+    .modal-header,
+    .auth-header { padding: 15px !important; }
+
+    .close-btn,
+    .modal-close,
+    .close-modal {
+        top: 10px !important;
+        right: 15px !important;
+        font-size: 2rem !important;
+    }
+}
+
+/* Улучшения для landscape режима на мобильных */
+@media (max-height: 600px) and (orientation: landscape) {
+    .auth-modal,
+    .modal,
+    .modal-hero {
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+    }
+}
+
+/* Улучшения для очень высоких экранов */
+@media (min-height: 1000px) {
+    .hero-card { min-height: 500px !important; }
+    .mission-card { min-height: 350px !important; }
+}
+
+/* Ховер эффекты только на устройствах с мышью */
+@media (hover: hover) and (pointer: fine) {
+    .btn:hover,
+    .hero-card:hover,
+    .mission-card:hover,
+    .tag:hover,
+    .social-links a:hover {
+        transform: translateY(-3px) !important;
+        transition: transform 0.3s ease !important;
+    }
+}
+
+@media (hover: none) {
+    .btn:active,
+    .hero-card:active,
+    .mission-card:active {
+        transform: scale(0.98) !important;
+        transition: transform 0.1s ease !important;
+    }
+}
+
+/* Улучшения для печати */
+@media print {
+    .header,
+    .footer,
+    .btn,
+    .hamburger,
+    .close-modal,
+    .close-btn,
+    .hero-buttons,
+    .admin-actions,
+    .profile-actions,
+    .btn-action,
+    .btn-card {
+        display: none !important;
+    }
+
+    .hero-card,
+    .mission-card,
+    .profile-content,
+    .admin-content,
+    .timeline-item {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+        break-inside: avoid !important;
+        margin-bottom: 15px !important;
+    }
+}
