@@ -1,199 +1,37 @@
-name: Deploy Full Stack to VPS
+name: Deploy Frontend to GitHub Pages
 
 on:
   push:
-    branches: [master, main]
-  workflow_dispatch:
+    branches: ["master"]
+    paths:
+      - 'Frontend/**'
+      - 'package.json'
+      - 'vite.config.js'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          fetch-depth: 0
-
-      - name: Setup SSH Key
+          node-version: '18'
+      
+      - name: Install dependencies
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          
-          # Добавляем VPS в known_hosts чтобы избежать вопроса о доверии
-          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Test SSH Connection
+          cd Frontend
+          npm ci
+      
+      - name: Build Vue.js
         run: |
-          ssh -o ConnectTimeout=5 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "echo 'SSH connection successful'"
-
-      - name: Deploy Application
-        run: |
-          # 1. Копируем файлы на сервер
-          echo "Copying files to server..."
-          rsync -avz --exclude='.git' --exclude='node_modules' --exclude='venv' \
-            -e "ssh -o StrictHostKeyChecking=no" \
-            ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/orbitknowledge/
-          
-          # 2. Выполняем команды развертывания на сервере
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-            set -e  # Выход при ошибке
-            cd /var/www/orbitknowledge
-            
-            echo "=== Deploying OrbitKnowledge ==="
-            echo "Current directory: $(pwd)"
-            
-            # Проверяем, существует ли папка
-            if [ ! -d "/var/www/orbitknowledge" ]; then
-              echo "Directory /var/www/orbitknowledge does not exist. Creating..."
-              sudo mkdir -p /var/www/orbitknowledge
-              sudo chown -R $USER:$USER /var/www/orbitknowledge
-            fi
-            
-            # БЭКЕНД
-            echo "=== Setting up Backend ==="
-            cd Backend
-            
-            # Создаем виртуальное окружение если нет
-            if [ ! -d "venv" ]; then
-              echo "Creating Python virtual environment..."
-              python3 -m venv venv
-            fi
-            
-            # Активируем и устанавливаем зависимости
-            echo "Installing Python dependencies..."
-            source venv/bin/activate
-            pip install --upgrade pip
-            pip install -r requirements.txt
-            
-            # Проверяем, работает ли приложение
-            echo "Testing FastAPI app..."
-            python -c "from main import app; print('FastAPI app loaded successfully')" || exit 1
-            
-            # ФРОНТЕНД
-            echo "=== Setting up Frontend ==="
-            cd ../Frontend
-            
-            # Устанавливаем Node.js если нет
-            if ! command -v node &> /dev/null; then
-              echo "Installing Node.js..."
-              curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-              sudo apt-get install -y nodejs
-            fi
-            
-            # Устанавливаем зависимости
-            echo "Installing Node.js dependencies..."
-            npm ci --only=production
-            
-            # Собираем проект
-            echo "Building Vue.js application..."
-            npm run build
-            
-            # ПРОВЕРЯЕМ СЕРВИСЫ
-            echo "=== Checking Services ==="
-            
-            # Создаем systemd service для бэкенда если нет
-            if [ ! -f "/etc/systemd/system/orbitknowledge.service" ]; then
-              echo "Creating systemd service..."
-              sudo tee /etc/systemd/system/orbitknowledge.service > /dev/null << SERVICE
-[Unit]
-Description=OrbitKnowledge Backend Service
-After=network.target
-
-[Service]
-Type=simple
-User=$USER
-WorkingDirectory=/var/www/orbitknowledge/Backend
-Environment="PATH=/var/www/orbitknowledge/Backend/venv/bin"
-ExecStart=/var/www/orbitknowledge/Backend/venv/bin/python main.py
-Restart=always
-RestartSec=3
-
-[Install]
-WantedBy=multi-user.target
-SERVICE
-              
-              sudo systemctl daemon-reload
-              sudo systemctl enable orbitknowledge.service
-            fi
-            
-            # Перезапускаем сервисы
-            echo "Restarting services..."
-            sudo systemctl restart orbitknowledge.service
-            
-            # Проверяем статус
-            echo "Service status:"
-            sudo systemctl status orbitknowledge.service --no-pager
-            
-            # Настройка Nginx (если установлен)
-            if command -v nginx &> /dev/null; then
-              echo "Configuring Nginx..."
-              
-              # Создаем конфиг для фронтенда
-              sudo tee /etc/nginx/sites-available/orbitknowledge > /dev/null << NGINX
-server {
-    listen 80;
-    server_name orbitaznaniy.ru www.orbitaznaniy.ru;
-    
-    root /var/www/orbitknowledge/Frontend/dist;
-    index index.html;
-    
-    # Frontend
-    location / {
-        try_files \$uri \$uri/ /index.html;
-    }
-    
-    # Backend API
-    location /api/ {
-        proxy_pass http://localhost:8000/;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    }
-    
-    # Статические файлы бэкенда
-    location /uploads/ {
-        alias /var/www/orbitknowledge/Backend/uploads/;
-    }
-}
-NGINX
-              
-              # Активируем сайт
-              sudo ln -sf /etc/nginx/sites-available/orbitknowledge /etc/nginx/sites-enabled/
-              sudo nginx -t && sudo systemctl restart nginx
-            fi
-            
-            echo "=== Deployment Completed Successfully ==="
-            echo "Frontend: http://orbitaznaniy.ru"
-            echo "Backend API: http://orbitaznaniy.ru/api/docs"
-            echo "Service status: sudo systemctl status orbitknowledge.service"
-          EOF
-
-      - name: Verify Deployment
-        run: |
-          echo "Verifying deployment..."
-          sleep 5  # Даем время на запуск
-          
-          # Проверяем доступность API
-          API_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.VPS_HOST }}/api/ || echo "curl_failed")
-          if [ "$API_RESPONSE" = "200" ] || [ "$API_RESPONSE" = "404" ]; then
-            echo "✅ Backend is responding (HTTP $API_RESPONSE)"
-          else
-            echo "❌ Backend might be down (HTTP $API_RESPONSE)"
-          fi
-          
-          # Проверяем фронтенд
-          FRONTEND_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.VPS_HOST }}/ || echo "curl_failed")
-          if [ "$FRONTEND_RESPONSE" = "200" ]; then
-            echo "✅ Frontend is responding (HTTP 200)"
-          else
-            echo "⚠️ Frontend response: HTTP $FRONTEND_RESPONSE"
-          fi
-
-      - name: Cleanup SSH Key
-        if: always()
-        run: |
-          rm -f ~/.ssh/id_rsa
-          echo "SSH key cleaned up"
+          cd Frontend
+          npm run build
+      
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./Frontend/dist
