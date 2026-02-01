@@ -1,0 +1,41 @@
+name: Deploy Full Stack to VPS
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # 1. Обновляем код
+            cd /var/www/orbitknowledge
+            git pull origin master
+            
+            # 2. Устанавливаем/обновляем бэкенд
+            cd Backend
+            if [ ! -d "venv" ]; then
+              python3 -m venv venv
+            fi
+            source venv/bin/activate
+            pip install -r requirements.txt
+            
+            # 3. Устанавливаем/обновляем фронтенд
+            cd ../Frontend
+            npm install
+            npm run build
+            
+            # 4. Перезапускаем сервисы
+            sudo systemctl restart orbitknowledge-backend
+            sudo systemctl restart nginx
